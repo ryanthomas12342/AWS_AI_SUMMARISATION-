@@ -1,0 +1,18 @@
+# Python cache
+__pycache__/
+
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+
+# Uploads or test files
+upload/resources_RC_Conversation_Sample.mp3
+
+# Logs
+*.log
+
+# IDE Configurations
+.vscode/
+.idea/
