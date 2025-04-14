@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AudioSumm Dashboard</title>
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <img
+            src="{{ url_for('static', filename='images/logo.svg') }}"
+            alt="AudioSumm"
+          />
+          <span>AudioSumm</span>
+        </div>
+
+        <nav class="nav-menu">
+          <a href="/dashboard" class="nav-item active">
+            <i class="fas fa-th-large"></i>
+            Dashboard
+          </a>
+          <a href="/audio" class="nav-item">
+            <i class="fas fa-music"></i>
+            My Audio
+          </a>
+          <a href="/summaries" class="nav-item">
+            <i class="fas fa-file-alt"></i>
+            Summaries
+          </a>
+          <a href="/settings" class="nav-item">
+            <i class="fas fa-cog"></i>
+            Settings
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="/logout" class="nav-item">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+          <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search summaries..." />
+          </div>
+          <div class="user-profile">
+            <span>Welcome, User</span>
+            <div class="avatar">US</div>
+          </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon blue">
+                <i class="fas fa-file"></i>
+              </div>
+              <div class="stat-info">
+                <h3>Total Files</h3>
+                <p class="stat-number">0</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon purple">
+                <i class="fas fa-clock"></i>
+              </div>
+              <div class="stat-info">
+                <h3>Avg. Processing</h3>
+                <p class="stat-number">0 sec</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon green">
+                <i class="fas fa-calendar"></i>
+              </div>
+              <div class="stat-info">
+                <h3>This Month</h3>
+                <p class="stat-number">0</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon orange">
+                <i class="fas fa-database"></i>
+              </div>
+              <div class="stat-info">
+                <h3>Storage Used</h3>
+                <p class="stat-number">0 MB</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Section -->
+          <div class="charts-grid">
+            <div class="chart-card">
+              <h2>Processing Activity</h2>
+              <div class="chart-container">
+                <canvas id="activityChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <h2>File Types</h2>
+              <div class="chart-container">
+                <canvas id="fileTypesChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload Section -->
+          <div class="upload-section">
+            <h2>Upload New Audio</h2>
+            <div class="upload-container">
+              <div class="upload-area" id="dropZone">
+                <input
+                  type="file"
+                  id="fileInput"
+                  hidden
+                  accept="audio/*"
+                  multiple
+                />
+                <div class="upload-content">
+                  <button
+                    class="browse-btn"
+                    onclick="document.getElementById('fileInput').click()"
+                  >
+                    Browse...
+                  </button>
+                  <span class="upload-text">Or drop files here</span>
+                </div>
+                <div
+                  id="filePreview"
+                  class="file-preview"
+                  style="display: none"
+                >
+                  <div class="selected-file">
+                    <i class="fas fa-music file-icon"></i>
+                    <span id="selectedFileName"></span>
+                    <button class="remove-file" onclick="removeSelectedFile()">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  <div
+                    id="uploadProgress"
+                    class="upload-progress"
+                    style="display: none"
+                  >
+                    <div class="progress-bar">
+                      <div class="progress-fill"></div>
+                    </div>
+                    <div class="progress-text">0%</div>
+                  </div>
+                </div>
+              </div>
+              <div class="upload-actions">
+                <button class="clear-btn" onclick="clearFiles()">Clear</button>
+                <button class="upload-btn" onclick="uploadFiles()">
+                  Upload
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modal for Summary Preview -->
+    <div id="summaryModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">Summary Preview</h2>
+          <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div id="summaryContent"></div>
+        </div>
+        <div class="modal-footer">
+          <button id="downloadSummary" class="btn-primary">Download</button>
+          <button class="btn-secondary close-modal">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <!-- <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script> -->
+    <script>
+      // Initialize charts
+      const activityCtx = document
+        .getElementById("activityChart")
+        .getContext("2d");
+      const fileTypesCtx = document
+        .getElementById("fileTypesChart")
+        .getContext("2d");
+
+      new Chart(activityCtx, {
+        type: "line",
+        data: {
+          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+          datasets: [
+            {
+              label: "Processing Activity",
+              data: [0, 0, 0, 0, 0, 0],
+              borderColor: "#4c6fff",
+              tension: 0.4,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: "rgba(0, 0, 0, 0.1)",
+              },
+            },
+            x: {
+              grid: {
+                display: false,
+              },
+            },
+          },
+        },
+      });
+
+      new Chart(fileTypesCtx, {
+        type: "doughnut",
+        data: {
+          labels: ["MP3", "WAV", "Other"],
+          datasets: [
+            {
+              data: [0, 0, 0],
+              backgroundColor: ["#4c6fff", "#6c8fff", "#8ca6ff"],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "right",
+            },
+          },
+        },
+      });
+
+      // File upload handling
+      const dropZone = document.getElementById("dropZone");
+      const fileInput = document.getElementById("fileInput");
+      let selectedFiles = [];
+
+      // Drag and drop handlers
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+      });
+
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("dragover");
+      });
+
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        handleFiles(e.dataTransfer.files);
+      });
+
+      fileInput.addEventListener("change", (e) => {
+        handleFiles(e.target.files);
+      });
+
+      function handleFiles(files) {
+        if (files.length > 0) {
+          const file = files[0];
+
+          // Validate file type
+          if (!file.type.startsWith("audio/")) {
+            showError("Please upload an audio file");
+            return;
+          }
+
+          // Validate file size (max 50MB)
+          if (file.size > 50 * 1024 * 1024) {
+            showError("File size must be less than 50MB");
+            return;
+          }
+
+          selectedFiles = [file];
+          showFilePreview(file);
+        }
+      }
+
+      function showFilePreview(file) {
+        const filePreview = document.getElementById("filePreview");
+        const fileName = document.getElementById("selectedFileName");
+
+        fileName.textContent = file.name;
+        filePreview.style.display = "block";
+      }
+
+      function removeSelectedFile() {
+        selectedFiles = [];
+        const filePreview = document.getElementById("filePreview");
+        filePreview.style.display = "none";
+        fileInput.value = "";
+      }
+
+      function clearFiles() {
+        removeSelectedFile();
+      }
+
+      function uploadFiles() {
+        if (selectedFiles.length === 0) {
+          showError("No file selected");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", selectedFiles[0]);
+
+        // Show progress bar
+        const uploadProgress = document.getElementById("uploadProgress");
+        const progressFill = uploadProgress.querySelector(".progress-fill");
+        const progressText = uploadProgress.querySelector(".progress-text");
+
+        uploadProgress.style.display = "block";
+        progressFill.style.width = "0%";
+        progressText.textContent = "Uploading: 0%";
+
+        // Get JWT token from localStorage
+        const token = localStorage.getItem("token");
+        if (!token) {
+          showError("Please log in to upload files");
+          return;
+        }
+
+        // Add the token to the request headers
+        const headers = new Headers();
+        headers.append("Authorization", `Bearer ${token}`);
+
+        fetch("/upload/uploadaudio", {
+          method: "POST",
+          headers: headers,
+          body: formData,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((data) => {
+                throw new Error(
+                  data.msg || `HTTP error! status: ${response.status}`
+                );
+              });
+            }
+            return response.json();
+          })
+          .then((data) => {
+            showSuccess(data.msg || "File uploaded successfully!");
+            removeSelectedFile();
+            // Add progress indication
+            progressFill.style.width = "100%";
+            progressText.textContent = "Upload complete!";
+            setTimeout(() => {
+              uploadProgress.style.display = "none";
+            }, 2000);
+            updateDashboardStats();
+          })
+          .catch((error) => {
+            console.error("Upload error:", error);
+            showError(error.message || "Upload failed. Please try again.");
+          });
+      }
+
+      function showError(message) {
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "upload-error";
+        errorDiv.textContent = message;
+
+        // Remove any existing messages
+        removeMessages();
+
+        // Add the new error message
+        document.querySelector(".upload-content").appendChild(errorDiv);
+
+        // Remove error message after 5 seconds
+        setTimeout(() => errorDiv.remove(), 5000);
+      }
+
+      function showSuccess(message) {
+        const successDiv = document.createElement("div");
+        successDiv.className = "upload-success";
+        successDiv.textContent = message;
+
+        // Remove any existing messages
+        removeMessages();
+
+        // Add the new success message
+        document.querySelector(".upload-content").appendChild(successDiv);
+
+        // Remove success message after 5 seconds
+        setTimeout(() => successDiv.remove(), 5000);
+      }
+
+      function removeMessages() {
+        const messages = document.querySelectorAll(
+          ".upload-error, .upload-success"
+        );
+        messages.forEach((msg) => msg.remove());
+      }
+
+      function updateDashboardStats() {
+        // Fetch updated stats from the server
+        fetch("/api/dashboard/stats", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Update total files
+            document.querySelector(
+              ".stat-card:nth-child(1) .stat-number"
+            ).textContent = data.totalFiles;
+
+            // Update average processing time
+            document.querySelector(
+              ".stat-card:nth-child(2) .stat-number"
+            ).textContent = `${data.avgProcessing} sec`;
+
+            // Update this month's count
+            document.querySelector(
+              ".stat-card:nth-child(3) .stat-number"
+            ).textContent = data.thisMonth;
+
+            // Update storage used
+            document.querySelector(
+              ".stat-card:nth-child(4) .stat-number"
+            ).textContent = `${data.storageUsed} MB`;
+
+            // Update charts if needed
+            updateCharts(data);
+          })
+          .catch((error) => console.error("Error updating stats:", error));
+      }
+
+      function updateCharts(data) {
+        // Update the activity chart
+        if (window.activityChart) {
+          window.activityChart.data.datasets[0].data = data.activityData;
+          window.activityChart.update();
+        }
+
+        // Update the file types chart
+        if (window.fileTypesChart) {
+          window.fileTypesChart.data.datasets[0].data = [
+            data.fileTypes.mp3,
+            data.fileTypes.wav,
+            data.fileTypes.other,
+          ];
+          window.fileTypesChart.update();
+        }
+      }
+    </script>
+  </body>
+</html>

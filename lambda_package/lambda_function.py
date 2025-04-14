@@ -60,3 +60,5 @@ Transcript:
     except Exception as e:
         print(f"Error processing transcript: {str(e)}")
         return {'statusCode': 500, 'body': f"Error: {str(e)}"}
+
+# aws lambda update-function-code --function-name process_transcript_function --zip-file fileb://function.zip
