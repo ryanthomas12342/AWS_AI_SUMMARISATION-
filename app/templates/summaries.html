@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Summaries - AudioSumm</title>
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Base dashboard styles -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+    <!-- Summary specific styles -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/summaries.css') }}"
+    />
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  </head>
+  <body>
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <img
+            src="{{ url_for('static', filename='images/logo.svg') }}"
+            alt="AudioSumm"
+          />
+          <span>AudioSumm</span>
+        </div>
+
+        <nav class="nav-menu">
+          <a href="/dashboard" class="nav-item">
+            <i class="fas fa-th-large"></i>
+            Dashboard
+          </a>
+          <a href="/audio" class="nav-item">
+            <i class="fas fa-music"></i>
+            My Audio
+          </a>
+          <a href="/summaries" class="nav-item active">
+            <i class="fas fa-file-alt"></i>
+            Summaries
+          </a>
+          <a href="/settings" class="nav-item">
+            <i class="fas fa-cog"></i>
+            Settings
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="#" onclick="handleLogout(event)" class="nav-item">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="top-bar">
+          <h1>My Summaries</h1>
+          <div class="user-profile">
+            <span>Welcome, {{ username }}</span>
+            <div class="avatar">{{ username[:2].upper() }}</div>
+          </div>
+        </header>
+
+        <div class="summaries-container">
+          {% if summaries %}
+          <div class="summaries-grid">
+            {% for summary in summaries %}
+            <div class="summary-card">
+              <div class="summary-info">
+                <div class="summary-title">{{ summary.filename }}</div>
+                <div class="summary-meta">
+                  <span>{{ summary.last_modified }}</span>
+                  <span>•</span>
+                  <span>{{ summary.size }} KB</span>
+                </div>
+              </div>
+              <div class="summary-actions">
+                <a
+                  href="/api/summaries/download/{{ summary.key }}"
+                  class="action-btn download-btn"
+                  onclick="return downloadSummary(event, '{{ summary.key }}')"
+                >
+                  <i class="fas fa-download"></i>
+                  Download
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="no-summaries">
+            <i class="fas fa-file-alt fa-3x"></i>
+            <h2>No summaries yet</h2>
+            <p>Upload an audio file to get started!</p>
+          </div>
+          {% endif %}
+        </div>
+      </main>
+    </div>
+
+    <script>
+      async function downloadSummary(event, summaryKey) {
+        event.preventDefault();
+
+        try {
+          console.log("yes sending req to donwload");
+          const response = await fetch(`/summaries/download/${summaryKey}`, {
+            method: "GET",
+            credentials: "include", // Important for cookies
+          });
+
+          if (!response.ok) {
+            throw new Error("Download failed");
+          }
+
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${summaryKey}.txt`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          a.remove();
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Failed to download summary");
+        }
+
+        return false;
+      }
+    </script>
+  </body>
+</html>

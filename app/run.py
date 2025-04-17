@@ -15,14 +15,13 @@ from app.models.user import db
 
 app=create_app()
 
-@app.route('/dashboard')
-def dashboard():
-    return render_template('dashboard.html')
+
+
+
 
 @app.route("/")
 def index():
     return redirect(url_for('auth.login_page'))
-
 @app.route('/start_worker', methods=['POST'])
 def start_worker():
     worker_thread = threading.Thread(target=poll_sqs_queue)

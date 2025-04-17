@@ -1,0 +1,125 @@
+/* Summary page specific styles */
+.summaries-container {
+  padding: 2rem;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: var(--text-secondary);
+}
+
+.loading i {
+  margin-bottom: 1rem;
+}
+
+/* No Summaries State */
+.no-summaries {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.no-summaries i {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.no-summaries h2 {
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+/* Summaries Grid */
+.summaries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Summary Card */
+.summary-card {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.summary-info {
+  margin-bottom: 1rem;
+}
+
+.summary-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  word-break: break-word;
+}
+
+.summary-meta {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Summary Actions */
+.summary-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.download-btn {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.download-btn:hover {
+  background-color: var(--primary-dark);
+}
+
+.download-btn i {
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .summaries-container {
+    padding: 1rem;
+  }
+
+  .summaries-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    padding: 1rem;
+  }
+}

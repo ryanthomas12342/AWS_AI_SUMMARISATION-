@@ -16,6 +16,8 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/dashboard.css') }}"
     />
+    <!-- Auth JS -->
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
   </head>
   <body>
     <div class="dashboard-container">
@@ -30,26 +32,42 @@
         </div>
 
         <nav class="nav-menu">
-          <a href="/dashboard" class="nav-item active">
+          <a
+            href="#"
+            onclick="return checkAuthAndNavigate(event,'/dashboard')"
+            class="nav-item active"
+          >
             <i class="fas fa-th-large"></i>
             Dashboard
           </a>
-          <a href="/audio" class="nav-item">
+          <a
+            href="#"
+            onclick="return checkAuthAndNavigate(event,'/audio')"
+            class="nav-item"
+          >
             <i class="fas fa-music"></i>
             My Audio
           </a>
-          <a href="/summaries" class="nav-item">
+          <a
+            href="#"
+            onclick=" return checkAuthAndNavigate(event,'/summaries')"
+            class="nav-item"
+          >
             <i class="fas fa-file-alt"></i>
             Summaries
           </a>
-          <a href="/settings" class="nav-item">
+          <a
+            href="#"
+            onclick="return checkAuthAndNavigate(event,'/settings')"
+            class="nav-item"
+          >
             <i class="fas fa-cog"></i>
             Settings
           </a>
         </nav>
 
         <div class="sidebar-footer">
-          <a href="/logout" class="nav-item">
+          <a href="#" onclick="handleLogout(event)" class="nav-item">
             <i class="fas fa-sign-out-alt"></i>
             Logout
           </a>
