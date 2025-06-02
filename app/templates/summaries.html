@@ -92,6 +92,13 @@
                   <i class="fas fa-download"></i>
                   Download
                 </a>
+                <button
+                  class="action-btn share-btn"
+                  onclick="return generateUrl(event,'{{summary.key}}')"
+                >
+                  <i class="fas fa-share-alt"></i>
+                  Share
+                </button>
               </div>
             </div>
             {% endfor %}
@@ -108,6 +115,47 @@
     </div>
 
     <script>
+      async function generateUrl(e, summaryKey) {
+        e.preventDefault();
+        try {
+          const resp = await fetch(`/summaries/share/${summaryKey}`, {
+            credentials: "include",
+            method: "GET",
+            headers: getAuthHeaders(),
+          });
+
+          if (resp.ok) {
+            const data = await resp.json();
+
+            if (data.url) {
+              // Create a temporary input element
+              const tempInput = document.createElement("input");
+              tempInput.value = data.url;
+              document.body.appendChild(tempInput);
+
+              // Select and copy the text
+              tempInput.select();
+              document.execCommand("copy");
+
+              // Remove the temporary input
+              document.body.removeChild(tempInput);
+
+              // Show success message
+              alert("Share link copied to clipboard!");
+            } else {
+              alert("Error: No URL received from server");
+            }
+          } else {
+            const errorData = await resp.json();
+            alert(errorData.message || "Error generating share link");
+          }
+        } catch (err) {
+          console.error("Error:", err);
+          alert("Something went wrong while generating the share link");
+        }
+
+        return false;
+      }
       async function handleSubscription() {
         try {
           const resp = await fetch("/payment/create-checkout-session", {
@@ -200,5 +248,50 @@
         return false;
       }
     </script>
+
+    <style>
+      .summary-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+      }
+
+      .download-btn {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+      }
+
+      .download-btn:hover {
+        background-color: #45a049;
+      }
+
+      .share-btn {
+        background-color: #2196f3;
+        color: white;
+        border: none;
+      }
+
+      .share-btn:hover {
+        background-color: #1976d2;
+      }
+
+      .action-btn i {
+        font-size: 16px;
+      }
+    </style>
   </body>
 </html>

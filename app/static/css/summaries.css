@@ -82,31 +82,44 @@
 /* Summary Actions */
 .summary-actions {
   display: flex;
-  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  font-size: 0.9rem;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
   text-decoration: none;
-  transition: background-color 0.2s ease;
+  border: none;
 }
 
 .download-btn {
-  background-color: var(--primary-color);
+  background-color: #4caf50;
   color: white;
 }
 
 .download-btn:hover {
-  background-color: var(--primary-dark);
+  background-color: #45a049;
 }
 
-.download-btn i {
-  font-size: 1rem;
+.share-btn {
+  background-color: #2196f3;
+  color: white;
+}
+
+.share-btn:hover {
+  background-color: #1976d2;
+}
+
+.action-btn i {
+  font-size: 16px;
 }
 
 /* Responsive Design */

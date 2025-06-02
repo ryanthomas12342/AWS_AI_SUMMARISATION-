@@ -57,6 +57,32 @@ def list_summaries():
         return jsonify({'error': f'Failed to list summaries: {str(e)}'}), 500
 
 
+@summaries_bp.route('/share/<path:summary_key>')
+@jwt_required()
+def presigned(summary_key):
+
+    try:
+        user=get_jwt_identity()
+
+        print(summary_key)
+
+        
+        
+        presigned_url=s3.generate_presigned_url(
+            'get_object',
+            Params={'Bucket':OUTPUT_BUCKET,'Key':summary_key},
+            ExpiresIn=60*60*24
+        )
+
+        return jsonify({'url':presigned_url}),200
+    
+    except Exception as e:
+        current_app.logger.error(f"Error generating presigned link: {str(e)}")
+
+        return jsonify({'message':f'Error while generating url : {e}'}),403
+
+
+
 
 @summaries_bp.route('/download/<path:summary_key>')
 @jwt_required()
@@ -91,6 +117,11 @@ def download_summary(summary_key):
         return jsonify({"erorr":"failed to downlaod the summary file "}),500
 
     
+
+
+
+    
+
 
 
 
