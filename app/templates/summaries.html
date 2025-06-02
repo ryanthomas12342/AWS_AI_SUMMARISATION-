@@ -108,6 +108,57 @@
     </div>
 
     <script>
+      async function handleSubscription() {
+        try {
+          const resp = await fetch("/payment/create-checkout-session", {
+            method: "POST",
+            credentials: "include",
+            headers: getAuthHeaders(),
+          });
+          console.log(resp);
+          const data = await resp.json();
+
+          if (data.url) {
+            window.location.href = data.url;
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Failed to create checkout session");
+        }
+      }
+
+      function showSubscriptionModal() {
+        const modalDiv = document.createElement("div");
+        modalDiv.id = "subscriptionModal";
+        modalDiv.className = "modal";
+        modalDiv.innerHTML = `
+        <div id="subscriptionModal" class="modal">
+            <div class="modal-content">
+                <h2>Subscription Required</h2>
+                <p>You need a membership to download summaries.</p>
+                <p>One-time payment of ₹0.01 for unlimited downloads.</p>
+                <div class="modal-buttons">
+                    <button onclick="handleSubscription()" class="primary-btn">
+                        Subscribe Now
+                    </button>
+                    <button onclick="closeModal()" class="secondary-btn">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+        `;
+
+        document.body.appendChild(modalDiv);
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("subscriptionModal");
+        if (modal) {
+          modal.remove();
+        }
+      }
+
       async function downloadSummary(event, summaryKey) {
         event.preventDefault();
 
@@ -117,6 +168,16 @@
             method: "GET",
             credentials: "include", // Important for cookies
           });
+
+          console.log(response);
+
+          if (response.status === 403) {
+            console.log("hello");
+            const data = await response.json();
+
+            showSubscriptionModal();
+            return;
+          }
 
           if (!response.ok) {
             throw new Error("Download failed");

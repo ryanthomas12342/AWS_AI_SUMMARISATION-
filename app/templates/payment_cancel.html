@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Cancelled - AudioSumm</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+  </head>
+  <body>
+    <div class="cancel-container">
+      <div class="cancel-card">
+        <i class="fas fa-times-circle cancel-icon"></i>
+        <h1>Payment Cancelled</h1>
+        <p>{{ message }}</p>
+        <a
+          href="{{ url_for('summaries_bp.list_summaries') }}"
+          class="btn-secondary"
+        >
+          Return to Summaries
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

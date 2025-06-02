@@ -26,7 +26,7 @@ def create_app():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 3600  # 1 hour
     
     # Initialize extensions with app
-    CORS(app, supports_credentials=True)  # Enable credentials in CORS
+    CORS(app, support_credentials=True)  # Enable credentials in CORS
     db.init_app(app)
     jwt.init_app(app)
     bcrypt.init_app(app)
@@ -36,11 +36,14 @@ def create_app():
     from app.routes.upload import upload_bp
     from app.routes.dashboard import dashboard_bp
     from app.routes.summaries import summaries_bp
-    
+    from app.routes.payment import payment_bp
+
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(upload_bp, url_prefix='/upload')
     app.register_blueprint(summaries_bp, url_prefix='/summaries')
     app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
+    app.register_blueprint(payment_bp,url_prefix='/payment')
+    # app.register_blueprint(payment_bp,url_prefix='/payment')
     
     # Create database tables
     with app.app_context():

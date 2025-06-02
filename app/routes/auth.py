@@ -77,10 +77,12 @@ def login():
             'access_token',
             value=access_token,
             httponly=True,
-            secure=False,  # Set to True in production
+            secure=False,
             samesite='Lax',
-            max_age=3600  # 1 hour
+            max_age=3600
         )
+
+        print(response)
         
         print("Cookie set in response")  # Debug print
         return response

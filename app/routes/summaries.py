@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, current_app, render_template,send_file
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.user import User
+from app.routes.payment import check_payment
 import boto3
 import os
 import io
@@ -10,6 +11,8 @@ summaries_bp = Blueprint('summaries_bp', __name__)
 
 OUTPUT_BUCKET = os.getenv('OUTPUT_BUCKET')
 s3 = boto3.client('s3', region_name='ap-south-1')
+
+
 
 @summaries_bp.route('/', methods=['GET'])
 @jwt_required()
@@ -63,35 +66,29 @@ def download_summary(summary_key):
 
     try:
 
-        user_id=get_jwt_identity()
+        response,status_code=check_payment()
 
-        if isinstance(user_id,str):
-            user_id=int(user_id)
+        resp=response.get_json()
 
-        user=User.query.get(user_id)
-
-        if not user:
-            return jsonify({"error":"user not found"}),404
+        if status_code!=200 or not resp.get('has_paid'):
+            return jsonify({'error':'Payment required'}),403
+        bucket_name=os.getenv('OUTPUT_BUCKET')
+        response=s3.get_object(Bucket=bucket_name,
+                               Key=f'{summary_key}')
         
-        s3_key=f'{summary_key}'
-        print(summary_key)
+        return send_file(
+            io.BytesIO(response['Body'].read()),
+            mimetype='text/plain',
+            as_attachment=True,
+                        download_name=f'{summary_key}.txt'
 
-        response=s3.get_object(Bucket=OUTPUT_BUCKET,Key=s3_key)
-
-        if 'Body' in response:
-            file_content=response['Body'].read()
-            return send_file(
-                io.BytesIO(file_content),
-                mimetype='text/plain',
-                as_attachment=True,
-                download_name=f'{summary_key}.txt',
-            )
+        )
         
-        return jsonify({"Eror":"the summary file as not founf"}),404
+        return jsonify({"Error":"the summary file as not founf"}),403
     
     except Exception as e:
-        current_app.logger.error(f"Error donwloading the sumamry file :{str(e)}")
-        return jsonify({"erorr":"failed to downlaod the sumamry file "}),500
+        current_app.logger.error(f"Error donwloading the summary file :{str(e)}")
+        return jsonify({"erorr":"failed to downlaod the summary file "}),500
 
     
 
