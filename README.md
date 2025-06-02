@@ -19,6 +19,8 @@ A comprehensive Flask-based web application that provides audio transcription an
   - Raw audio storage
   - Transcript storage
   - Summary storage
+- **Amazon Transcribe**:
+  - For Converting Audio to Text
 - **Amazon SQS**:
   - Message queue for processing transcripts
   - Asynchronous processing workflow
@@ -131,4 +133,3 @@ pip install -r requirements.txt
 python wsgi.py
 ```
 
-## 📁 Project Structure
