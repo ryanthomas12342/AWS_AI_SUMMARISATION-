@@ -99,6 +99,13 @@
                   <i class="fas fa-share-alt"></i>
                   Share
                 </button>
+                <button
+                  class="action-btn listen-btn"
+                  onclick="return playAudio(event,'{{summary.key}}')"
+                >
+                  <i class="fas fa-volume-up"></i>
+                  Listen
+                </button>
               </div>
             </div>
             {% endfor %}
@@ -113,8 +120,56 @@
         </div>
       </main>
     </div>
+    <!-- Hidden audio player -->
+    <audio id="audioPlayer" controls style="display: none"></audio>
 
     <script>
+      async function playAudio(event, summary_key) {
+        event.preventDefault();
+
+        try {
+          let audio_key = summary_key.replace(".txt", ".mp3");
+          const response = await fetch(`/summaries/audio/${audio_key}`, {
+            method: "GET",
+            credentials: "include",
+            headers: getAuthHeaders(),
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            if (data.error === "subscription_required") {
+              showSubscriptionModal();
+              return false;
+            }
+            throw new Error(data.error || "Failed to check subscription");
+          }
+
+          const audioBlob = await response.blob();
+          const audioUrl = URL.createObjectURL(audioBlob);
+
+          let audioPlayer = document.getElementById("audioPlayer");
+          if (!audioPlayer) {
+            audioPlayer = document.createElement("audio");
+            audioPlayer.id = "audioPlayer";
+            audioPlayer.controls = true;
+            document.body.appendChild(audioPlayer);
+          }
+
+          audioPlayer.src = audioUrl;
+          audioPlayer.style.display = "block";
+          audioPlayer.play();
+
+          audioPlayer.onended = () => {
+            URL.revokeObjectURL(audioUrl);
+            audioPlayer.style.display = "none";
+          };
+        } catch (err) {
+          console.error("Error:", err);
+          alert("Failed to play audio");
+        }
+        return false;
+      }
+
       async function generateUrl(e, summaryKey) {
         e.preventDefault();
         try {

@@ -64,7 +64,7 @@ def check_payment():
 
 @payment_bp.route('/create-checkout-session',methods=['POST'])
 @jwt_required()
-def create_checout_session():
+def create_checkout_session():
 
     print("hello")
     try:

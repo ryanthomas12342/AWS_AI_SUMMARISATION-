@@ -10,6 +10,8 @@ import io
 summaries_bp = Blueprint('summaries_bp', __name__)
 
 OUTPUT_BUCKET = os.getenv('OUTPUT_BUCKET')
+AUDIO_BUCKET=os.getenv('AUDIO_BUCKET')
+
 s3 = boto3.client('s3', region_name='ap-south-1')
 
 
@@ -118,6 +120,34 @@ def download_summary(summary_key):
 
     
 
+
+@summaries_bp.route('/audio/<path:audio_key>')
+@jwt_required()
+def get_polly_audio(audio_key):
+
+    print("getting audio form s3")
+
+    try:
+        response,status_code=check_payment()
+
+        resp=response.get_json()
+
+        if status_code!=200 or not resp.get('has_paid'):
+            return jsonify({'error':"subscription_required"}),403
+        
+        response=s3.get_object(Bucket=AUDIO_BUCKET,Key=audio_key)
+
+        return send_file(
+            io.BytesIO(response['Body'].read()),
+            mimetype='audio/mpeg',
+            as_attachment=False 
+        )
+    except Exception as e:
+        current_app.logger.error(f"Error serving audio file: {str(e)}")
+        return jsonify({"error": "Failed to serve audio file"}), 500
+
+
+        
 
 
     

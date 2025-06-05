@@ -24,7 +24,6 @@ def upload_file():
         if file.filename == '':
             return jsonify({"msg": "No selected file"}), 400
             
-        # Log file info
         current_app.logger.info(f"Received file: {file.filename}, Content Type: {file.content_type}")
 
         # Validate file type
@@ -36,13 +35,10 @@ def upload_file():
             # Initialize S3 client
             s3 = boto3.client('s3',region_name='ap-south-1')
             
-            # Secure the filename
             filename = secure_filename(file.filename)
             
-            # Create the S3 key
             s3_key = f'users/{userid}/audio/{filename}'
             
-            # Log upload attempt
             current_app.logger.info(f"Attempting S3 upload to bucket: {UPLOAD_BUCKET}, key: {s3_key}")
             
             # Upload to S3
@@ -53,10 +49,8 @@ def upload_file():
 
 
             
-            # Log success
             current_app.logger.info(f"File uploaded successfully to S3: {s3_key}")
             
-            # Return success response
             return jsonify({
                 "msg": "File uploaded successfully",
                 "filename": filename,
